@@ -1,0 +1,948 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Porcentajes Express - 3º ESO</title>
+    <!-- Tailwind CSS para estilos modernos y responsivos -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts: Inter y JetBrains Mono para números claros -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&family=JetBrains+Mono:wght@600;700&display=swap" rel="stylesheet">
+    <!-- Tone.js para efectos de sonido sintéticos suaves y sin URLs externas -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/tone/14.8.49/Tone.js"></script>
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, #0f172a 0%, #1e1b4b 50%, #312e81 100%);
+            min-height: 100vh;
+            color: #f8fafc;
+            user-select: none;
+        }
+        .font-mono-num {
+            font-family: 'JetBrains Mono', monospace;
+        }
+        /* Animaciones personalizadas para feedback visual */
+        @keyframes popIn {
+            0% { transform: scale(0.92); opacity: 0; }
+            100% { transform: scale(1); opacity: 1; }
+        }
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            20%, 60% { transform: translateX(-6px); }
+            40%, 80% { transform: translateX(6px); }
+        }
+        .animate-pop {
+            animation: popIn 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        }
+        .animate-shake {
+            animation: shake 0.4s ease-in-out;
+        }
+        /* Transición suave de la barra de tiempo */
+        #timer-bar {
+            transition: width 0.1s linear, background-color 0.3s ease;
+        }
+        /* Efecto cristal para tarjetas */
+        .glass-card {
+            background: rgba(255, 255, 255, 0.96);
+            backdrop-filter: blur(12px);
+            color: #0f172a;
+        }
+    </style>
+</head>
+<body class="flex items-center justify-center p-3 sm:p-6">
+
+    <!-- Contenedor Principal -->
+    <main class="w-full max-w-2xl mx-auto">
+        
+        <!-- Barra superior de utilidad (Sonido) -->
+        <div class="flex justify-between items-center mb-3 px-1">
+            <div class="flex items-center gap-2">
+                <span class="bg-indigo-500/30 border border-indigo-400/30 text-indigo-200 text-xs font-bold px-3 py-1 rounded-full uppercase tracking-wider">
+                    Matemáticas · 3º ESO
+                </span>
+            </div>
+            <button id="sound-toggle" onclick="toggleSound()" class="flex items-center gap-1.5 bg-white/10 hover:bg-white/20 text-white text-xs font-semibold px-3 py-1.5 rounded-full transition cursor-pointer" title="Activar o desactivar sonido">
+                <span id="sound-icon">🔊</span>
+                <span id="sound-text">Sonido ON</span>
+            </button>
+        </div>
+
+        <!-- ==================== PANTALLA 1: INICIO ==================== -->
+        <section id="screen-start" class="glass-card rounded-3xl shadow-2xl p-6 sm:p-10 text-center animate-pop">
+            <div class="w-16 h-16 sm:w-20 sm:h-20 bg-gradient-to-tr from-indigo-600 to-violet-500 text-white rounded-2xl flex items-center justify-center mx-auto mb-5 shadow-lg transform -rotate-3">
+                <span class="text-3xl sm:text-4xl font-extrabold">%</span>
+            </div>
+            
+            <h1 class="text-2xl sm:text-4xl font-extrabold text-slate-900 tracking-tight mb-2">
+                Porcentajes Express
+            </h1>
+            <p class="text-slate-600 text-sm sm:text-base max-w-md mx-auto mb-6 leading-relaxed">
+                Pon a prueba tu agilidad mental. Calcula <strong>porcentajes mentalmente</strong> y escribe el resultado antes de que se agote el reloj.
+            </p>
+
+            <!-- Reglas rápidas en tarjetas -->
+            <div class="grid grid-cols-3 gap-2 sm:gap-4 mb-6 text-left">
+                <div class="bg-slate-100 p-3 sm:p-4 rounded-2xl border border-slate-200/70">
+                    <div id="rule-time-display" class="text-indigo-600 font-extrabold text-lg sm:text-xl mb-0.5">20 seg</div>
+                    <div class="text-xs text-slate-600 font-medium">Límite por cada pregunta</div>
+                </div>
+                <div class="bg-slate-100 p-3 sm:p-4 rounded-2xl border border-slate-200/70">
+                    <div class="text-emerald-600 font-extrabold text-lg sm:text-xl mb-0.5">Respuesta</div>
+                    <div class="text-xs text-slate-600 font-medium">Escribe el número y pulsa Enter</div>
+                </div>
+                <div class="bg-slate-100 p-3 sm:p-4 rounded-2xl border border-slate-200/70">
+                    <div class="text-amber-600 font-extrabold text-lg sm:text-xl mb-0.5">Logros</div>
+                    <div class="text-xs text-slate-600 font-medium">Medallas por precisión y rapidez</div>
+                </div>
+            </div>
+
+            <!-- Nombre del alumno -->
+            <div class="mb-5 max-w-md mx-auto text-left">
+                <label for="student-name-input" class="block text-xs font-bold uppercase tracking-wider text-slate-400 mb-2 text-center">
+                    1. Nombre del alumno/a
+                </label>
+                <div class="relative">
+                    <span class="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 text-base">🎓</span>
+                    <input
+                        type="text"
+                        id="student-name-input"
+                        maxlength="35"
+                        placeholder="Escribe tu nombre y apellidos..."
+                        class="w-full pl-10 pr-4 py-3 bg-slate-50 border-2 border-slate-200 focus:border-indigo-600 focus:bg-white focus:outline-none focus:ring-4 focus:ring-indigo-500/15 rounded-2xl text-sm sm:text-base font-semibold text-slate-800 placeholder:text-slate-400 placeholder:font-normal transition"
+                    />
+                </div>
+            </div>
+
+            <!-- Selector de nivel -->
+            <div class="mb-5">
+                <p class="text-xs font-bold uppercase tracking-wider text-slate-400 mb-2.5">2. Elige tu modo de entrenamiento</p>
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 max-w-md mx-auto">
+                    <button type="button" id="mode-normal" onclick="selectMode('normal')" class="mode-btn border-2 border-indigo-600 bg-indigo-50 text-indigo-900 p-3.5 rounded-2xl text-left transition cursor-pointer">
+                        <div class="flex items-center justify-between font-bold text-sm sm:text-base">
+                            <span>⚡ Modo Estándar</span>
+                            <span class="w-4 h-4 rounded-full bg-indigo-600 inline-block check-dot"></span>
+                        </div>
+                        <p class="text-xs text-indigo-700/80 mt-1">10%, 20%, 25%, 50%, 75%, 5%, 15%...</p>
+                    </button>
+                    <button type="button" id="mode-reto" onclick="selectMode('reto')" class="mode-btn border-2 border-slate-200 bg-white hover:border-slate-300 text-slate-700 p-3.5 rounded-2xl text-left transition cursor-pointer">
+                        <div class="flex items-center justify-between font-bold text-sm sm:text-base">
+                            <span>🔥 Modo Reto 3º ESO</span>
+                            <span class="w-4 h-4 rounded-full border-2 border-slate-300 inline-block check-dot"></span>
+                        </div>
+                        <p class="text-xs text-slate-500 mt-1">Incluye 1%, 2%, 120%, 150% y 200%</p>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Selector de tiempo y longitud de partida -->
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 max-w-md mx-auto mb-7">
+                <!-- Tiempo disponible -->
+                <div>
+                    <p class="text-xs font-bold uppercase tracking-wider text-slate-400 mb-2">3. Tiempo por pregunta</p>
+                    <div class="inline-flex bg-slate-100 p-1.5 rounded-2xl border border-slate-200 gap-1 w-full justify-center">
+                        <button type="button" id="time-20" onclick="selectTimeLimit(20)" class="flex-1 py-2 px-2 rounded-xl font-bold text-xs sm:text-sm bg-indigo-600 text-white shadow-sm transition cursor-pointer">
+                            20s
+                        </button>
+                        <button type="button" id="time-30" onclick="selectTimeLimit(30)" class="flex-1 py-2 px-2 rounded-xl font-bold text-xs sm:text-sm text-slate-600 hover:text-slate-900 transition cursor-pointer">
+                            30s
+                        </button>
+                        <button type="button" id="time-40" onclick="selectTimeLimit(40)" class="flex-1 py-2 px-2 rounded-xl font-bold text-xs sm:text-sm text-slate-600 hover:text-slate-900 transition cursor-pointer">
+                            40s
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Número de preguntas -->
+                <div>
+                    <p class="text-xs font-bold uppercase tracking-wider text-slate-400 mb-2">4. Preguntas</p>
+                    <div class="inline-flex bg-slate-100 p-1.5 rounded-2xl border border-slate-200 gap-1 w-full justify-center">
+                        <button type="button" id="count-10" onclick="selectCount(10)" class="flex-1 py-2 px-2 rounded-xl font-bold text-xs sm:text-sm bg-indigo-600 text-white shadow-sm transition cursor-pointer">
+                            10 preg.
+                        </button>
+                        <button type="button" id="count-15" onclick="selectCount(15)" class="flex-1 py-2 px-2 rounded-xl font-bold text-xs sm:text-sm text-slate-600 hover:text-slate-900 transition cursor-pointer">
+                            15 preg.
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <button onclick="startGame()" class="w-full sm:w-auto px-10 py-4 bg-gradient-to-r from-indigo-600 to-violet-600 hover:from-indigo-700 hover:to-violet-700 text-white font-bold text-lg rounded-2xl shadow-xl shadow-indigo-500/30 transform transition active:scale-95 cursor-pointer">
+                ¡Empezar actividad!
+            </button>
+        </section>
+
+        <!-- ==================== PANTALLA 2: JUEGO ==================== -->
+        <section id="screen-game" class="hidden glass-card rounded-3xl shadow-2xl overflow-hidden animate-pop">
+            
+            <!-- Cabecera de progreso y estadísticas -->
+            <div class="bg-slate-50 border-b border-slate-200/80 px-5 py-4 flex flex-wrap items-center justify-between gap-2">
+                <div class="flex items-center gap-2 sm:gap-3 flex-wrap">
+                    <span class="bg-indigo-600 text-white font-bold text-xs sm:text-sm px-3 py-1 rounded-xl">
+                        Pregunta <span id="q-current">1</span>/<span id="q-total">10</span>
+                    </span>
+                    <span id="game-student-badge" class="bg-slate-200/80 text-slate-700 font-semibold text-xs px-2.5 py-1 rounded-xl truncate max-w-[140px] sm:max-w-[200px]">
+                        🎓 Alumno/a
+                    </span>
+                    <div id="streak-badge" class="hidden items-center gap-1 bg-amber-100 text-amber-800 border border-amber-300 text-xs font-bold px-2.5 py-1 rounded-xl">
+                        🔥 Racha: <span id="q-streak">0</span>
+                    </div>
+                </div>
+
+                <div class="flex items-center gap-4 text-sm font-bold">
+                    <div class="text-emerald-600 flex items-center gap-1">
+                        <span>✓</span> <span id="q-hits">0</span>
+                    </div>
+                    <div class="text-slate-700 bg-slate-200/70 px-3 py-1 rounded-xl font-mono-num">
+                        <span id="q-score">0</span> pts
+                    </div>
+                </div>
+            </div>
+
+            <!-- Barra de Tiempo de 20 segundos -->
+            <div class="w-full bg-slate-200 h-2.5 relative">
+                <div id="timer-bar" class="bg-emerald-500 h-full w-full"></div>
+            </div>
+
+            <!-- Cuerpo de la Pregunta -->
+            <div class="p-6 sm:p-8">
+                <!-- Reloj numérico -->
+                <div class="flex justify-center mb-4">
+                    <div id="timer-pill" class="inline-flex items-center gap-1.5 px-3.5 py-1 rounded-full bg-emerald-100 text-emerald-800 font-mono-num font-bold text-sm transition-colors">
+                        <span>⏱️</span>
+                        <span id="timer-text">20.0 s</span>
+                    </div>
+                </div>
+
+                <!-- Enunciado -->
+                <div class="text-center mb-6">
+                    <p class="text-slate-500 text-sm sm:text-base font-medium mb-1">Calcula mentalmente:</p>
+                    <h2 id="question-text" class="text-3xl sm:text-5xl font-extrabold text-slate-900 tracking-tight py-2">
+                        ¿Cuánto es el <span class="text-indigo-600">25%</span> de <span class="text-violet-700">80</span>?
+                    </h2>
+                </div>
+
+                <!-- Campo de Respuesta Manual -->
+                <div id="input-container" class="max-w-md mx-auto mb-4">
+                    <form id="answer-form" onsubmit="submitManualAnswer(event)" class="flex flex-col sm:flex-row gap-3">
+                        <div class="relative flex-1">
+                            <input
+                                type="text"
+                                id="answer-input"
+                                inputmode="decimal"
+                                autocomplete="off"
+                                autocorrect="off"
+                                spellcheck="false"
+                                placeholder="Escribe el resultado..."
+                                aria-label="Escribe tu respuesta numérica"
+                                class="w-full text-center font-mono-num text-2xl sm:text-3xl font-extrabold text-slate-900 bg-slate-50 border-2 border-slate-300 focus:border-indigo-600 focus:bg-white focus:outline-none focus:ring-4 focus:ring-indigo-500/20 rounded-2xl py-4 px-4 transition-all placeholder:text-slate-400 placeholder:font-sans placeholder:text-base placeholder:font-medium"
+                            />
+                        </div>
+                        <button
+                            type="submit"
+                            id="submit-btn"
+                            class="px-7 py-4 bg-gradient-to-r from-indigo-600 to-violet-600 hover:from-indigo-700 hover:to-violet-700 text-white font-bold text-base sm:text-lg rounded-2xl shadow-lg shadow-indigo-500/25 transition active:scale-95 cursor-pointer shrink-0"
+                        >
+                            Comprobar ↵
+                        </button>
+                    </form>
+                    <p id="input-hint" class="text-center text-xs text-slate-400 mt-2">
+                        Pulsa <kbd class="px-1.5 py-0.5 bg-slate-100 border border-slate-300 rounded text-slate-600 font-mono">Enter</kbd> para enviar · Admite coma o punto decimal
+                    </p>
+                </div>
+
+                <!-- Caja de Feedback y Truco Mental (aparece tras responder) -->
+                <div id="feedback-box" class="hidden mt-5 rounded-2xl p-4 sm:p-5 border-2 transition-all">
+                    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                        <div>
+                            <div id="feedback-title" class="font-extrabold text-base sm:text-lg mb-1">
+                                ¡Correcto!
+                            </div>
+                            <p id="feedback-tip" class="text-xs sm:text-sm leading-relaxed opacity-90">
+                                Truco mental...
+                            </p>
+                        </div>
+                        <button id="next-btn" onclick="nextQuestion()" class="shrink-0 px-5 py-3 bg-slate-900 hover:bg-slate-800 text-white font-bold text-sm rounded-xl transition cursor-pointer shadow-md">
+                            Siguiente →
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ==================== PANTALLA 3: RESULTADOS ==================== -->
+        <section id="screen-results" class="hidden glass-card rounded-3xl shadow-2xl p-6 sm:p-9 animate-pop">
+            <div class="text-center mb-6">
+                <div id="result-emoji" class="text-5xl mb-2">🏆</div>
+                <div class="inline-flex items-center gap-1.5 bg-indigo-100 text-indigo-800 font-bold text-xs sm:text-sm px-3.5 py-1 rounded-full mb-2">
+                    <span>🎓</span>
+                    <span id="res-student-name">Alumno/a</span>
+                    <span class="text-indigo-400">·</span>
+                    <span id="res-config-summary">Modo Estándar · 20s</span>
+                </div>
+                <h2 class="text-2xl sm:text-3xl font-extrabold text-slate-900">¡Actividad completada!</h2>
+                <p id="result-message" class="text-slate-600 text-sm sm:text-base mt-1">
+                    Buen trabajo entrenando tu mente.
+                </p>
+            </div>
+
+            <!-- Tarjetas de métricas principales -->
+            <div class="grid grid-cols-2 sm:grid-cols-5 gap-2.5 sm:gap-3 mb-6">
+                <div class="bg-indigo-50 border border-indigo-100 p-3 rounded-2xl text-center">
+                    <div class="text-[11px] font-bold uppercase text-indigo-500">Nota Final</div>
+                    <div id="res-grade" class="text-2xl font-extrabold text-indigo-700 font-mono-num mt-1">8.0</div>
+                </div>
+                <div class="bg-emerald-50 border border-emerald-100 p-3 rounded-2xl text-center">
+                    <div class="text-[11px] font-bold uppercase text-emerald-600">Efectividad</div>
+                    <div id="res-accuracy" class="text-2xl font-extrabold text-emerald-700 font-mono-num mt-1">80%</div>
+                </div>
+                <div class="bg-amber-50 border border-amber-100 p-3 rounded-2xl text-center">
+                    <div class="text-[11px] font-bold uppercase text-amber-600">Tiempo Total</div>
+                    <div id="res-total-time" class="text-2xl font-extrabold text-amber-700 font-mono-num mt-1">64.2s</div>
+                </div>
+                <div class="bg-orange-50 border border-orange-100 p-3 rounded-2xl text-center">
+                    <div class="text-[11px] font-bold uppercase text-orange-600">Racha Máx.</div>
+                    <div id="res-streak" class="text-2xl font-extrabold text-orange-700 font-mono-num mt-1">4</div>
+                </div>
+                <div class="col-span-2 sm:col-span-1 bg-violet-50 border border-violet-100 p-3 rounded-2xl text-center">
+                    <div class="text-[11px] font-bold uppercase text-violet-600">Puntuación</div>
+                    <div id="res-score" class="text-2xl font-extrabold text-violet-700 font-mono-num mt-1">1250</div>
+                </div>
+            </div>
+
+            <!-- Sección de Logros Desbloqueados -->
+            <div class="mb-6 bg-slate-50 border border-slate-200/80 rounded-2xl p-4 sm:p-5">
+                <div class="flex items-center justify-between mb-3">
+                    <h3 class="text-xs sm:text-sm font-extrabold uppercase tracking-wider text-slate-700 flex items-center gap-1.5">
+                        <span>🏅</span> Logros obtenidos
+                    </h3>
+                    <span id="achievements-counter" class="text-xs font-bold bg-amber-100 text-amber-800 px-2.5 py-0.5 rounded-full">
+                        0 / 6 desbloqueados
+                    </span>
+                </div>
+                <div id="achievements-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2.5">
+                    <!-- Medallas generadas dinámicamente -->
+                </div>
+            </div>
+
+            <!-- Repaso de preguntas y fallos -->
+            <div class="mb-7">
+                <h3 class="text-sm font-bold uppercase tracking-wider text-slate-500 mb-3 flex items-center justify-between">
+                    <span>Resumen de tus <span id="res-total-label">10</span> preguntas</span>
+                    <span class="text-xs font-normal normal-case text-slate-400">Revisa los trucos mentales</span>
+                </h3>
+                <div id="review-list" class="space-y-2.5 max-h-64 overflow-y-auto pr-1">
+                    <!-- Elementos generados dinámicamente -->
+                </div>
+            </div>
+
+            <!-- Botones de acción final -->
+            <div class="flex flex-col sm:flex-row gap-3 justify-center">
+                <button onclick="startGame()" class="px-8 py-3.5 bg-gradient-to-r from-indigo-600 to-violet-600 hover:from-indigo-700 hover:to-violet-700 text-white font-bold rounded-2xl shadow-lg transition cursor-pointer">
+                    🔄 Volver a jugar
+                </button>
+                <button onclick="goHome()" class="px-6 py-3.5 bg-slate-200 hover:bg-slate-300 text-slate-800 font-bold rounded-2xl transition cursor-pointer">
+                    Configurar actividad
+                </button>
+            </div>
+        </section>
+
+    </main>
+
+    <script>
+        /**
+         * CONFIGURACIÓN Y ESTADO GLOBAL DE LA APLICACIÓN
+         */
+        let gameState = {
+            studentName: '',
+            mode: 'normal', // 'normal' o 'reto'
+            timeLimit: 20.0, // 20, 30 o 40 segundos
+            totalQuestions: 10, // 10 o 15 preguntas
+            soundEnabled: true,
+            currentQuestionIndex: 0,
+            score: 0,
+            hits: 0,
+            streak: 0,
+            maxStreak: 0,
+            questions: [],
+            history: [],
+            timerInterval: null,
+            autoAdvanceTimeout: null,
+            timeLeft: 20.0,
+            questionStartTime: 0,
+            answered: false
+        };
+
+        /**
+         * SELECCIÓN DE MODO, TIEMPO LÍMITE Y NÚMERO DE PREGUNTAS
+         */
+        function selectMode(mode) {
+            gameState.mode = mode;
+            const btnNormal = document.getElementById('mode-normal');
+            const btnReto = document.getElementById('mode-reto');
+
+            if (mode === 'normal') {
+                btnNormal.className = "mode-btn border-2 border-indigo-600 bg-indigo-50 text-indigo-900 p-3.5 rounded-2xl text-left transition cursor-pointer";
+                btnNormal.querySelector('.check-dot').className = "w-4 h-4 rounded-full bg-indigo-600 inline-block check-dot";
+                btnReto.className = "mode-btn border-2 border-slate-200 bg-white hover:border-slate-300 text-slate-700 p-3.5 rounded-2xl text-left transition cursor-pointer";
+                btnReto.querySelector('.check-dot').className = "w-4 h-4 rounded-full border-2 border-slate-300 inline-block check-dot";
+            } else {
+                btnReto.className = "mode-btn border-2 border-indigo-600 bg-indigo-50 text-indigo-900 p-3.5 rounded-2xl text-left transition cursor-pointer";
+                btnReto.querySelector('.check-dot').className = "w-4 h-4 rounded-full bg-indigo-600 inline-block check-dot";
+                btnNormal.className = "mode-btn border-2 border-slate-200 bg-white hover:border-slate-300 text-slate-700 p-3.5 rounded-2xl text-left transition cursor-pointer";
+                btnNormal.querySelector('.check-dot').className = "w-4 h-4 rounded-full border-2 border-slate-300 inline-block check-dot";
+            }
+        }
+
+        function selectTimeLimit(seconds) {
+            gameState.timeLimit = seconds;
+            document.getElementById('rule-time-display').textContent = `${seconds} seg`;
+
+            [20, 30, 40].forEach(t => {
+                const btn = document.getElementById(`time-${t}`);
+                if (t === seconds) {
+                    btn.className = "flex-1 py-2 px-2 rounded-xl font-bold text-xs sm:text-sm bg-indigo-600 text-white shadow-sm transition cursor-pointer";
+                } else {
+                    btn.className = "flex-1 py-2 px-2 rounded-xl font-bold text-xs sm:text-sm text-slate-600 hover:text-slate-900 transition cursor-pointer";
+                }
+            });
+        }
+
+        function selectCount(count) {
+            gameState.totalQuestions = count;
+            const btn10 = document.getElementById('count-10');
+            const btn15 = document.getElementById('count-15');
+
+            if (count === 10) {
+                btn10.className = "flex-1 py-2 px-2 rounded-xl font-bold text-xs sm:text-sm bg-indigo-600 text-white shadow-sm transition cursor-pointer";
+                btn15.className = "flex-1 py-2 px-2 rounded-xl font-bold text-xs sm:text-sm text-slate-600 hover:text-slate-900 transition cursor-pointer";
+            } else {
+                btn15.className = "flex-1 py-2 px-2 rounded-xl font-bold text-xs sm:text-sm bg-indigo-600 text-white shadow-sm transition cursor-pointer";
+                btn10.className = "flex-1 py-2 px-2 rounded-xl font-bold text-xs sm:text-sm text-slate-600 hover:text-slate-900 transition cursor-pointer";
+            }
+        }
+
+        function toggleSound() {
+            gameState.soundEnabled = !gameState.soundEnabled;
+            document.getElementById('sound-icon').textContent = gameState.soundEnabled ? '🔊' : '🔇';
+            document.getElementById('sound-text').textContent = gameState.soundEnabled ? 'Sonido ON' : 'Sonido OFF';
+        }
+
+        /**
+         * EFECTOS DE SONIDO SINTÉTICOS CON TONE.JS
+         */
+        function playTone(type) {
+            if (!gameState.soundEnabled || typeof Tone === 'undefined') return;
+            try {
+                if (Tone.context.state !== 'running') {
+                    Tone.start();
+                }
+                const synth = new Tone.Synth({
+                    oscillator: { type: 'sine' },
+                    envelope: { attack: 0.01, decay: 0.15, sustain: 0, release: 0.15 }
+                }).toDestination();
+                synth.volume.value = -10;
+
+                const now = Tone.now();
+                if (type === 'correct') {
+                    synth.triggerAttackRelease('C5', '16n', now);
+                    synth.triggerAttackRelease('G5', '16n', now + 0.09);
+                } else if (type === 'wrong' || type === 'timeout') {
+                    synth.oscillator.type = 'triangle';
+                    synth.triggerAttackRelease('E3', '8n', now);
+                    synth.triggerAttackRelease('C3', '8n', now + 0.12);
+                } else if (type === 'tick') {
+                    synth.volume.value = -18;
+                    synth.triggerAttackRelease('A5', '32n', now);
+                } else if (type === 'finish') {
+                    synth.triggerAttackRelease('C5', '16n', now);
+                    synth.triggerAttackRelease('E5', '16n', now + 0.1);
+                    synth.triggerAttackRelease('G5', '16n', now + 0.2);
+                    synth.triggerAttackRelease('C6', '8n', now + 0.3);
+                }
+            } catch (err) {
+                // Ignorar errores de audio en navegadores restringidos
+            }
+        }
+
+        /**
+         * UTILIDADES NUMÉRICAS Y DE FORMATO
+         */
+        function cleanNum(n) {
+            return Math.round(n * 1000) / 1000;
+        }
+
+        function formatDisplay(n) {
+            return cleanNum(n).toString().replace('.', ',');
+        }
+
+        /**
+         * GENERADOR DE PROBLEMAS MENTALES (3º ESO)
+         */
+        function generateQuestionPool(mode, count) {
+            const normalTemplates = [
+                { pct: 10, nums: [30, 45, 60, 80, 120, 150, 240, 350, 420, 85], tip: (n, r) => `Para el 10%, divide ${n} entre 10 (mueve la coma un lugar a la izquierda) = ${formatDisplay(r)}.` },
+                { pct: 20, nums: [25, 40, 50, 60, 75, 90, 120, 150, 250, 300], tip: (n, r) => `Calcula el 10% (${formatDisplay(n / 10)}) y multiplícalo por 2 = ${formatDisplay(r)}.` },
+                { pct: 25, nums: [16, 20, 24, 32, 36, 40, 48, 60, 80, 120, 200], tip: (n, r) => `El 25% es la cuarta parte: divide ${n} entre 4 (mitad de la mitad) = ${formatDisplay(r)}.` },
+                { pct: 50, nums: [18, 24, 34, 46, 58, 74, 86, 92, 130, 250], tip: (n, r) => `El 50% es exactamente la mitad de ${n} = ${formatDisplay(r)}.` },
+                { pct: 75, nums: [12, 16, 20, 24, 40, 60, 80, 100, 120, 200], tip: (n, r) => `El 75% son tres cuartas partes: 25% es ${formatDisplay(n / 4)}, por 3 = ${formatDisplay(r)}.` },
+                { pct: 5, nums: [20, 40, 60, 80, 100, 120, 140, 180, 200, 300], tip: (n, r) => `El 5% es la mitad del 10%: 10% de ${n} es ${formatDisplay(n / 10)}, su mitad es ${formatDisplay(r)}.` },
+                { pct: 15, nums: [20, 40, 60, 80, 100, 120, 200, 300], tip: (n, r) => `Suma el 10% (${formatDisplay(n * 0.1)}) más su mitad (${formatDisplay(n * 0.05)}) = ${formatDisplay(r)}.` },
+                { pct: 30, nums: [20, 30, 40, 50, 60, 70, 80, 90, 120, 200], tip: (n, r) => `Calcula el 10% (${formatDisplay(n / 10)}) y multiplica por 3 = ${formatDisplay(r)}.` },
+                { pct: 40, nums: [20, 25, 30, 50, 60, 75, 80, 150, 200], tip: (n, r) => `Calcula el 10% (${formatDisplay(n / 10)}) y multiplica por 4 = ${formatDisplay(r)}.` },
+                { pct: 60, nums: [20, 25, 30, 50, 70, 80, 150, 200], tip: (n, r) => `Suma el 50% (${formatDisplay(n * 0.5)}) + el 10% (${formatDisplay(n * 0.1)}) = ${formatDisplay(r)}.` },
+                { pct: 80, nums: [20, 25, 30, 40, 50, 60, 75, 150], tip: (n, r) => `A ${n} réstale su 20% (${formatDisplay(n * 0.2)}) = ${formatDisplay(r)}.` },
+                { pct: 90, nums: [20, 30, 40, 50, 60, 70, 80, 120, 200], tip: (n, r) => `A ${n} réstale su 10% (${formatDisplay(n * 0.1)}) = ${formatDisplay(r)}.` }
+            ];
+
+            const retoTemplates = [
+                ...normalTemplates,
+                { pct: 1, nums: [100, 200, 350, 400, 500, 750, 900, 1200], tip: (n, r) => `Para el 1%, divide ${n} entre 100 (mueve la coma dos lugares) = ${formatDisplay(r)}.` },
+                { pct: 2, nums: [50, 100, 150, 200, 250, 300, 450, 600], tip: (n, r) => `Calcula el 1% (${formatDisplay(n / 100)}) y multiplica por 2 = ${formatDisplay(r)}.` },
+                { pct: 120, nums: [20, 30, 40, 50, 60, 80, 100, 150], tip: (n, r) => `120% es el total (${n}) más su 20% (${formatDisplay(n * 0.2)}) = ${formatDisplay(r)}.` },
+                { pct: 150, nums: [20, 30, 40, 60, 80, 100, 120, 200], tip: (n, r) => `150% es el número entero (${n}) más su mitad (${formatDisplay(n * 0.5)}) = ${formatDisplay(r)}.` },
+                { pct: 200, nums: [15, 25, 35, 45, 65, 85, 120, 150], tip: (n, r) => `El 200% es exactamente el doble de ${n} = ${formatDisplay(r)}.` }
+            ];
+
+            const pool = mode === 'reto' ? retoTemplates : normalTemplates;
+            const selected = [];
+            const usedKeys = new Set();
+
+            while (selected.length < count) {
+                const tpl = pool[Math.floor(Math.random() * pool.length)];
+                const num = tpl.nums[Math.floor(Math.random() * tpl.nums.length)];
+                const key = `${tpl.pct}-${num}`;
+
+                if (!usedKeys.has(key)) {
+                    usedKeys.add(key);
+                    const correct = cleanNum((tpl.pct * num) / 100);
+                    selected.push({
+                        pct: tpl.pct,
+                        num: num,
+                        correct: correct,
+                        tip: tpl.tip(num, correct)
+                    });
+                }
+            }
+
+            return selected;
+        }
+
+        /**
+         * FLUJO DE INICIO Y CARGA DE PREGUNTAS
+         */
+        function startGame() {
+            clearInterval(gameState.timerInterval);
+            clearTimeout(gameState.autoAdvanceTimeout);
+
+            const rawName = document.getElementById('student-name-input').value.trim();
+            gameState.studentName = rawName || 'Alumno/a';
+
+            gameState.currentQuestionIndex = 0;
+            gameState.score = 0;
+            gameState.hits = 0;
+            gameState.streak = 0;
+            gameState.maxStreak = 0;
+            gameState.history = [];
+            gameState.questions = generateQuestionPool(gameState.mode, gameState.totalQuestions);
+
+            document.getElementById('q-total').textContent = gameState.totalQuestions;
+            document.getElementById('game-student-badge').textContent = `🎓 ${gameState.studentName}`;
+            document.getElementById('screen-start').classList.add('hidden');
+            document.getElementById('screen-results').classList.add('hidden');
+            document.getElementById('screen-game').classList.remove('hidden');
+
+            updateScoreboard();
+            loadQuestion();
+        }
+
+        function goHome() {
+            clearInterval(gameState.timerInterval);
+            clearTimeout(gameState.autoAdvanceTimeout);
+            document.getElementById('screen-game').classList.add('hidden');
+            document.getElementById('screen-results').classList.add('hidden');
+            document.getElementById('screen-start').classList.remove('hidden');
+        }
+
+        function updateScoreboard() {
+            document.getElementById('q-current').textContent = gameState.currentQuestionIndex + 1;
+            document.getElementById('q-hits').textContent = gameState.hits;
+            document.getElementById('q-score').textContent = gameState.score;
+
+            const streakBadge = document.getElementById('streak-badge');
+            if (gameState.streak >= 2) {
+                streakBadge.classList.remove('hidden');
+                streakBadge.classList.add('flex');
+                document.getElementById('q-streak').textContent = gameState.streak;
+            } else {
+                streakBadge.classList.add('hidden');
+                streakBadge.classList.remove('flex');
+            }
+        }
+
+        function loadQuestion() {
+            clearTimeout(gameState.autoAdvanceTimeout);
+            gameState.answered = false;
+
+            const q = gameState.questions[gameState.currentQuestionIndex];
+            document.getElementById('q-current').textContent = gameState.currentQuestionIndex + 1;
+            document.getElementById('question-text').innerHTML = `¿Cuánto es el <span class="text-indigo-600">${q.pct}%</span> de <span class="text-violet-700">${q.num}</span>?`;
+
+            const input = document.getElementById('answer-input');
+            const submitBtn = document.getElementById('submit-btn');
+            const feedbackBox = document.getElementById('feedback-box');
+
+            input.value = '';
+            input.disabled = false;
+            input.className = "w-full text-center font-mono-num text-2xl sm:text-3xl font-extrabold text-slate-900 bg-slate-50 border-2 border-slate-300 focus:border-indigo-600 focus:bg-white focus:outline-none focus:ring-4 focus:ring-indigo-500/20 rounded-2xl py-4 px-4 transition-all placeholder:text-slate-400 placeholder:font-sans placeholder:text-base placeholder:font-medium";
+            submitBtn.disabled = false;
+            submitBtn.classList.remove('opacity-50', 'pointer-events-none');
+            feedbackBox.classList.add('hidden');
+
+            setTimeout(() => input.focus(), 40);
+            startTimer();
+        }
+
+        /**
+         * LÓGICA DEL TEMPORIZADOR CONFIGURABLE (20s, 30s o 40s)
+         */
+        function startTimer() {
+            clearInterval(gameState.timerInterval);
+            const limit = gameState.timeLimit;
+            gameState.timeLeft = limit;
+            gameState.questionStartTime = performance.now();
+
+            const timerBar = document.getElementById('timer-bar');
+            const timerText = document.getElementById('timer-text');
+            const timerPill = document.getElementById('timer-pill');
+
+            // Estado inicial verde
+            timerBar.style.width = '100%';
+            timerBar.className = 'bg-emerald-500 h-full';
+            timerPill.className = 'inline-flex items-center gap-1.5 px-3.5 py-1 rounded-full bg-emerald-100 text-emerald-800 font-mono-num font-bold text-sm transition-colors';
+            timerText.textContent = `${limit.toFixed(1)} s`;
+
+            let lastSecondTick = Math.ceil(limit);
+
+            gameState.timerInterval = setInterval(() => {
+                const elapsed = (performance.now() - gameState.questionStartTime) / 1000;
+                gameState.timeLeft = Math.max(0, limit - elapsed);
+
+                const pctWidth = (gameState.timeLeft / limit) * 100;
+                timerBar.style.width = `${pctWidth}%`;
+                timerText.textContent = `${gameState.timeLeft.toFixed(1)} s`;
+
+                // Cambio de color dinámico proporcional al tiempo configurado
+                if (gameState.timeLeft <= Math.min(5, limit * 0.25)) {
+                    timerBar.className = 'bg-rose-500 h-full';
+                    timerPill.className = 'inline-flex items-center gap-1.5 px-3.5 py-1 rounded-full bg-rose-100 text-rose-800 font-mono-num font-bold text-sm animate-pulse';
+                    
+                    const currentSec = Math.ceil(gameState.timeLeft);
+                    if (currentSec < lastSecondTick && currentSec > 0) {
+                        lastSecondTick = currentSec;
+                        playTone('tick');
+                    }
+                } else if (gameState.timeLeft <= limit * 0.5) {
+                    timerBar.className = 'bg-amber-400 h-full';
+                    timerPill.className = 'inline-flex items-center gap-1.5 px-3.5 py-1 rounded-full bg-amber-100 text-amber-800 font-mono-num font-bold text-sm';
+                }
+
+                // Tiempo agotado
+                if (gameState.timeLeft <= 0) {
+                    clearInterval(gameState.timerInterval);
+                    handleTimeout();
+                }
+            }, 50);
+        }
+
+        /**
+         * VALIDAR Y PROCESAR LA RESPUESTA ESCRITA POR EL ALUMNO
+         */
+        function submitManualAnswer(event) {
+            if (event) event.preventDefault();
+            if (gameState.answered) return;
+
+            const input = document.getElementById('answer-input');
+            const raw = input.value.trim();
+            const normalized = raw.replace(',', '.');
+
+            // Si está vacío o no es un número válido, sacudir el input sin penalizar
+            if (raw === '' || isNaN(Number(normalized))) {
+                input.classList.remove('animate-shake');
+                void input.offsetWidth;
+                input.classList.add('animate-shake');
+                input.focus();
+                return;
+            }
+
+            gameState.answered = true;
+            clearInterval(gameState.timerInterval);
+
+            const userValue = cleanNum(parseFloat(normalized));
+            const timeSpent = Math.min(gameState.timeLimit, (performance.now() - gameState.questionStartTime) / 1000);
+            const q = gameState.questions[gameState.currentQuestionIndex];
+            const isCorrect = Math.abs(userValue - q.correct) < 0.001;
+
+            input.disabled = true;
+            const submitBtn = document.getElementById('submit-btn');
+            submitBtn.disabled = true;
+            submitBtn.classList.add('opacity-50', 'pointer-events-none');
+
+            if (isCorrect) {
+                gameState.hits++;
+                gameState.streak++;
+                gameState.maxStreak = Math.max(gameState.maxStreak, gameState.streak);
+
+                // Puntos base (100) + bonus por rapidez (hasta 50) + bonus racha
+                const speedBonus = Math.round((gameState.timeLeft / gameState.timeLimit) * 50);
+                const streakBonus = (gameState.streak - 1) * 10;
+                gameState.score += (100 + speedBonus + streakBonus);
+
+                input.className = "w-full text-center font-mono-num text-2xl sm:text-3xl font-extrabold text-emerald-800 bg-emerald-50 border-2 border-emerald-500 rounded-2xl py-4 px-4 transition-all";
+                playTone('correct');
+            } else {
+                gameState.streak = 0;
+                input.className = "w-full text-center font-mono-num text-2xl sm:text-3xl font-extrabold text-rose-800 bg-rose-50 border-2 border-rose-500 rounded-2xl py-4 px-4 transition-all animate-shake";
+                playTone('wrong');
+            }
+
+            gameState.history.push({
+                pct: q.pct,
+                num: q.num,
+                correct: q.correct,
+                userAnswer: raw,
+                isCorrect: isCorrect,
+                timeout: false,
+                timeSpent: timeSpent,
+                tip: q.tip
+            });
+
+            updateScoreboard();
+            showFeedback(isCorrect ? 'correct' : 'wrong', q, raw);
+        }
+
+        /**
+         * PROCESAR TIEMPO AGOTADO
+         */
+        function handleTimeout() {
+            if (gameState.answered) return;
+            gameState.answered = true;
+            gameState.streak = 0;
+
+            const q = gameState.questions[gameState.currentQuestionIndex];
+            const input = document.getElementById('answer-input');
+            const submitBtn = document.getElementById('submit-btn');
+
+            input.disabled = true;
+            input.className = "w-full text-center font-mono-num text-2xl sm:text-3xl font-extrabold text-amber-800 bg-amber-50 border-2 border-amber-400 rounded-2xl py-4 px-4 transition-all";
+            submitBtn.disabled = true;
+            submitBtn.classList.add('opacity-50', 'pointer-events-none');
+
+            playTone('timeout');
+
+            gameState.history.push({
+                pct: q.pct,
+                num: q.num,
+                correct: q.correct,
+                userAnswer: null,
+                isCorrect: false,
+                timeout: true,
+                timeSpent: gameState.timeLimit,
+                tip: q.tip
+            });
+
+            updateScoreboard();
+            showFeedback('timeout', q);
+        }
+
+        /**
+         * FEEDBACK INMEDIATO Y AVANCE A LA SIGUIENTE PREGUNTA
+         */
+        function showFeedback(status, q, userRaw = '') {
+            const feedbackBox = document.getElementById('feedback-box');
+            const titleEl = document.getElementById('feedback-title');
+            const tipEl = document.getElementById('feedback-tip');
+            const nextBtn = document.getElementById('next-btn');
+
+            feedbackBox.classList.remove('hidden');
+            nextBtn.textContent = gameState.currentQuestionIndex + 1 >= gameState.totalQuestions ? 'Ver resultados →' : 'Siguiente →';
+
+            if (status === 'correct') {
+                feedbackBox.className = "mt-5 rounded-2xl p-4 sm:p-5 border-2 bg-emerald-50 border-emerald-300 text-emerald-950 transition-all animate-pop";
+                titleEl.innerHTML = `✅ ¡Correcto! El ${q.pct}% de ${q.num} es <span class="underline">${formatDisplay(q.correct)}</span>`;
+            } else if (status === 'wrong') {
+                feedbackBox.className = "mt-5 rounded-2xl p-4 sm:p-5 border-2 bg-rose-50 border-rose-300 text-rose-950 transition-all animate-pop";
+                titleEl.innerHTML = `❌ Incorrecto (pusiste "${userRaw}"). La respuesta es <span class="underline">${formatDisplay(q.correct)}</span>`;
+            } else {
+                feedbackBox.className = "mt-5 rounded-2xl p-4 sm:p-5 border-2 bg-amber-50 border-amber-300 text-amber-950 transition-all animate-pop";
+                titleEl.innerHTML = `⏰ ¡Tiempo agotado! La respuesta era <span class="underline">${formatDisplay(q.correct)}</span>`;
+            }
+
+            tipEl.textContent = `💡 Truco mental: ${q.tip}`;
+        }
+
+        function nextQuestion() {
+            clearTimeout(gameState.autoAdvanceTimeout);
+            gameState.currentQuestionIndex++;
+
+            if (gameState.currentQuestionIndex >= gameState.totalQuestions) {
+                showResults();
+            } else {
+                loadQuestion();
+            }
+        }
+
+        /**
+         * PANTALLA DE RESULTADOS FINALES Y CÁLCULO DE LOGROS
+         */
+        function showResults() {
+            clearInterval(gameState.timerInterval);
+            clearTimeout(gameState.autoAdvanceTimeout);
+
+            document.getElementById('screen-game').classList.add('hidden');
+            document.getElementById('screen-results').classList.remove('hidden');
+
+            const total = gameState.totalQuestions;
+            const hits = gameState.hits;
+            const accuracy = Math.round((hits / total) * 100);
+            const grade = ((hits / total) * 10).toFixed(1);
+            const totalTime = gameState.history.reduce((acc, item) => acc + item.timeSpent, 0);
+            const avgTime = totalTime / total;
+
+            const modeLabel = gameState.mode === 'reto' ? 'Modo Reto 3º ESO' : 'Modo Estándar';
+            document.getElementById('res-student-name').textContent = gameState.studentName;
+            document.getElementById('res-config-summary').textContent = `${modeLabel} · ${gameState.timeLimit}s`;
+
+            document.getElementById('res-grade').textContent = grade;
+            document.getElementById('res-accuracy').textContent = `${accuracy}%`;
+            document.getElementById('res-total-time').textContent = `${totalTime.toFixed(1)}s`;
+            document.getElementById('res-streak').textContent = gameState.maxStreak;
+            document.getElementById('res-score').textContent = gameState.score;
+            document.getElementById('res-total-label').textContent = total;
+
+            const emojiEl = document.getElementById('result-emoji');
+            const msgEl = document.getElementById('result-message');
+
+            if (accuracy >= 90) {
+                emojiEl.textContent = '🏆';
+                msgEl.textContent = `¡Sobresaliente, ${gameState.studentName}! Dominas el cálculo mental de porcentajes.`;
+            } else if (accuracy >= 70) {
+                emojiEl.textContent = '🎯';
+                msgEl.textContent = `¡Muy buen trabajo, ${gameState.studentName}! Tienes una gran agilidad numérica.`;
+            } else if (accuracy >= 50) {
+                emojiEl.textContent = '💪';
+                msgEl.textContent = `¡Aprobado, ${gameState.studentName}! Repasa los trucos mentales para ganar velocidad.`;
+            } else {
+                emojiEl.textContent = '📚';
+                msgEl.textContent = `Buen entrenamiento, ${gameState.studentName}. Fíjate en los trucos de abajo e inténtalo de nuevo.`;
+            }
+
+            renderAchievements({ accuracy, totalTime, avgTime, hits, total });
+
+            // Renderizar listado de repaso
+            const reviewList = document.getElementById('review-list');
+            reviewList.innerHTML = gameState.history.map((item, idx) => {
+                const statusBadge = item.isCorrect
+                    ? `<span class="text-xs font-bold bg-emerald-100 text-emerald-800 px-2 py-0.5 rounded-lg">✓ Correcto (${item.timeSpent.toFixed(1)}s)</span>`
+                    : item.timeout
+                        ? `<span class="text-xs font-bold bg-amber-100 text-amber-800 px-2 py-0.5 rounded-lg">⏰ Tiempo agotado</span>`
+                        : `<span class="text-xs font-bold bg-rose-100 text-rose-800 px-2 py-0.5 rounded-lg">✗ Pusiste: ${item.userAnswer}</span>`;
+
+                const cardBorder = item.isCorrect ? 'border-emerald-200 bg-emerald-50/40' : 'border-rose-200 bg-rose-50/40';
+
+                return `
+                    <div class="p-3.5 rounded-2xl border ${cardBorder} text-left">
+                        <div class="flex flex-wrap items-center justify-between gap-2 mb-1">
+                            <span class="font-bold text-slate-900 text-sm">
+                                ${idx + 1}. ${item.pct}% de ${item.num} = <span class="text-indigo-700 font-mono-num">${formatDisplay(item.correct)}</span>
+                            </span>
+                            ${statusBadge}
+                        </div>
+                        <p class="text-xs text-slate-600 leading-relaxed">💡 ${item.tip}</p>
+                    </div>
+                `;
+            }).join('');
+
+            playTone('finish');
+        }
+
+        /**
+         * EVALUACIÓN DE LOGROS POR EFECTIVIDAD Y TIEMPO TOTAL
+         */
+        function renderAchievements({ accuracy, totalTime, avgTime, total }) {
+            const achievements = [
+                {
+                    icon: '🎯',
+                    title: 'Precisión Quirúrgica',
+                    desc: '100% de efectividad en la partida',
+                    unlocked: accuracy === 100
+                },
+                {
+                    icon: '🧠',
+                    title: 'Mente Calculada',
+                    desc: '80% o más de aciertos',
+                    unlocked: accuracy >= 80
+                },
+                {
+                    icon: '⚡',
+                    title: 'Relámpago Mental',
+                    desc: 'Media menor a 6s por pregunta (≥70% aciertos)',
+                    unlocked: avgTime < 6.0 && accuracy >= 70
+                },
+                {
+                    icon: '⏱️',
+                    title: 'Velocista de Aula',
+                    desc: `Tiempo total bajo ${total * 10}s (≥60% aciertos)`,
+                    unlocked: totalTime < (total * 10) && accuracy >= 60
+                },
+                {
+                    icon: '🔥',
+                    title: 'Imparable',
+                    desc: 'Racha de 5 o más aciertos seguidos',
+                    unlocked: gameState.maxStreak >= 5
+                },
+                {
+                    icon: '👑',
+                    title: 'Maestro 3º ESO',
+                    desc: 'Superar Modo Reto con ≥80% efectividad',
+                    unlocked: gameState.mode === 'reto' && accuracy >= 80
+                }
+            ];
+
+            const unlockedCount = achievements.filter(a => a.unlocked).length;
+            document.getElementById('achievements-counter').textContent = `${unlockedCount} / ${achievements.length} desbloqueados`;
+
+            const grid = document.getElementById('achievements-grid');
+            grid.innerHTML = achievements.map(ach => {
+                if (ach.unlocked) {
+                    return `
+                        <div class="flex items-start gap-2.5 p-3 rounded-xl bg-gradient-to-br from-amber-50 to-yellow-100/80 border border-amber-300 shadow-sm">
+                            <span class="text-2xl leading-none mt-0.5">${ach.icon}</span>
+                            <div>
+                                <div class="font-extrabold text-xs text-amber-950">${ach.title}</div>
+                                <div class="text-[11px] text-amber-800/90 leading-tight mt-0.5">${ach.desc}</div>
+                            </div>
+                        </div>
+                    `;
+                }
+                return `
+                    <div class="flex items-start gap-2.5 p-3 rounded-xl bg-slate-100/70 border border-slate-200/80 opacity-55 grayscale">
+                        <span class="text-2xl leading-none mt-0.5">🔒</span>
+                        <div>
+                            <div class="font-bold text-xs text-slate-600">${ach.title}</div>
+                            <div class="text-[11px] text-slate-500 leading-tight mt-0.5">${ach.desc}</div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        // Permitir avanzar a la siguiente pregunta pulsando Enter cuando ya se ha respondido
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter' && gameState.answered && !document.getElementById('screen-game').classList.contains('hidden')) {
+                e.preventDefault();
+                nextQuestion();
+            }
+        });
+    </script>
+</body>
+</html>
